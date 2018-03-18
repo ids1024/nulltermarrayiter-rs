@@ -1,0 +1,5 @@
+[package]
+name = "nulltermarrayiter"
+description = "Iterator over raw pointer to null-terminated array; for FFI"
+version = "0.1.0"
+authors = ["Ian Douglas Scott <ian@iandouglasscott.com>"]
