@@ -1,11 +1,39 @@
-#![no_std]
-#![feature(nonzero, alloc)]
+#![cfg_attr(not(test), no_std)]
 
-#[allow(unused_imports)]
-#[macro_use]
-extern crate alloc;
+pub trait Zeroable {
+    fn is_zero(self) -> bool;
+}
 
-use core::nonzero::Zeroable;
+macro_rules! impl_zeroable_num {
+    ( $type:ty ) => {
+        impl Zeroable for $type {
+            fn is_zero(self) -> bool {
+                self == 0
+            }
+        }
+    }
+}
+
+impl_zeroable_num!(u8);
+impl_zeroable_num!(i8);
+impl_zeroable_num!(u16);
+impl_zeroable_num!(i16);
+impl_zeroable_num!(u32);
+impl_zeroable_num!(i32);
+impl_zeroable_num!(u64);
+impl_zeroable_num!(i64);
+
+impl<T> Zeroable for *const T {
+    fn is_zero(self) -> bool {
+        self.is_null()
+    }
+}
+
+impl<T> Zeroable for *mut T {
+    fn is_zero(self) -> bool {
+        self.is_null()
+    }
+}
 
 /// Iterator over a null-terminated array. Iteration stops when NULL or 0 is
 /// reached.
@@ -39,8 +67,7 @@ impl<T: Zeroable + Copy> Iterator for NullTermArrayIter<T> {
 
 #[test]
 fn test_nulltermarray_strings() {
-    use core::ptr;
-    use alloc::Vec;
+    use std::ptr;
 
     let strlist = vec!["array\0", "of\0", "strings\0"];
     let mut ptrlist: Vec<_> = strlist.iter().map(|x| x.as_ptr()).collect();
